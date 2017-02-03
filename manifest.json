@@ -1,0 +1,22 @@
+{
+  "name": "Chrome COM",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "minimum_chrome_version": "23",
+  "description": "Serial port extension for Google Chrome",
+
+  "app": {
+    "background": {
+      "scripts": [ "com.js" ]
+    }
+  },
+
+  "icons": {
+    "16": "assets/icon_16x16.png",
+    "128": "assets/icon_128x128.png"
+  },
+
+  "permissions": [
+    "serial"
+  ]
+}
