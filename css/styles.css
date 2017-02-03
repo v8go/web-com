@@ -1,84 +1,60 @@
+/**
+ * create by strawmanbobi
+ * 2016-11-30
+ */
+
+/* Space out content a bit */
+
+html,
 body {
-  background-color: #f8f8f8;
-  font-family: "helvetica neue", helvetica, sans-serif;
-  font-size: 16px;
-  overflow: hidden;
+  height: 100%;
+  font-family: "Microsoft YaHei", "Hiragino Sans GB", "Californian FB";
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
-label {
-  display: block;
-  padding: 20px;
-  border-bottom: solid 1px #ddd;
-  border-right: solid 1px #ddd;
-  width: 300px;
+/* Custom page header */
+.header {
+  border-bottom: 1px solid #e5e5e5;
+}
+/* Make the masthead heading the same height as the navigation */
+.header h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 40px;
+  padding-bottom: 19px;
 }
 
-label {
-  color: #999;
+/* Custom page footer */
+.footer {
+  padding-top: 19px;
+  color: #777;
+  border-top: 1px solid #e5e5e5;
 }
 
-#port-picker,
-#status {
-  color: #000;
+/* Customize container */
+@media (min-width: 768px) {
 }
 
-#port-picker {
-  max-width: 250px;
-  margin-right: 10px;
+.container-narrow > hr {
+  margin: 10px 0;
 }
 
-#position-input {
-  display: block;
-   -webkit-appearance:none !important;
-  width: 90%;
-  margin: 20px auto;
-  height: 6px;
-  background: rgb(13, 168, 97);
+.pointer {
+  cursor: pointer
 }
 
-#position-input::-webkit-slider-thumb {
-  -webkit-appearance:none !important;
-  width: 30px;
-  height: 30px;
-  border-radius: 15px;
-  background: rgb(67, 135, 253);
+/* Responsive: Portrait tablets and up */
+@media screen and (min-width: 320px) {
+  /* Remove the padding we set earlier */
+  .header,
+  .footer {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  /* Space out the masthead */
+  .header {
+    margin-bottom: 30px;
+  }
 }
 
-#image {
-  position: absolute;
-  right: 10px;
-  top: -10px;
-  background-image: url(chrome-logo.svg);
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  width: 256px;
-  height: 256px;
-  -webkit-transition: all .2s linear;
-}
-
-#container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 640px;
-}
-
-#tv {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 640px;
-  height: 480px;
-  border-left: solid 1px #ddd;
-}
-
-#tv video,
-#tv img {
-  display: none;
-}
-
-#tv.working video,
-#tv.broken img {
-  display: block;
-}

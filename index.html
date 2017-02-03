@@ -7,23 +7,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="screen-orientation" content="portrait">
-    <meta name="description" content="irext application">
+    <meta name="description" content="chrome com extension">
     <meta name="author" content="strawmanbobi">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src *; style-src 'self' http://* 'unsafe-inline'; script-src 'self' http://* 'unsafe-inline' 'unsafe-eval'" />
     <title>Chrome COM</title>
 
-    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"
-            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-            crossorigin="anonymous"></script>
-    <script src="js/index.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+
+    <script src="./js/index.js"></script>
 </head>
 <body>
-<div id="container" class="container">
-    <div class="input-group" style="max-height: 25px;">
-        <span class="input-group-addon">Port</span>
-        <select id="port_list" class="input-group-addon" style="width: 100%;">
+<div>
+    <div>
+        <span style="margin-top: 5px;">Port</span>
+        <select id="port_list" style="width: 100%; height: 25px; margin-top: 5px;">
         </select>
     </div>
+    <div id="status" style="margin-top: 5px;"></div>
+    <button id="send_button">sendData</button>
 </div>
 
 </body>

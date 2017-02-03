@@ -6,10 +6,10 @@
 chrome.app.runtime.onLaunched.addListener(function () {
     chrome.app.window.create('index.html', {
         bounds: {
-            top: 0,
-            left: 0,
-            width: 640,
-            height: 720
+            top: 20,
+            left: 20,
+            width: 320,
+            height: 240
         }
     });
 });

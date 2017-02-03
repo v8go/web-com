@@ -7,11 +7,15 @@ var connectionId = -1;
 var readBuffer = "";
 
 onload = function () {
-    chrome.serial.getPorts(function (ports) {
-        initPortList(ports);
+    document.getElementById("send_button").addEventListener("click", function() {
+        sendData("abcd");
     });
+    chrome.serial.getDevices(function (devices) {
+        initPortList(devices);
+        openSelectedPort();
+    });
+    chrome.serial.onReceive.addListener(onReceived);
 };
-
 
 function onOpen(openInfo) {
     connectionId = openInfo.connectionId;
@@ -21,56 +25,51 @@ function onOpen(openInfo) {
         return;
     }
     setStatus('Connected');
-
-    setPosition(0);
-    chrome.serial.read(connectionId, 1, onRead);
-};
+}
 
 function setStatus(status) {
     document.getElementById('status').innerText = status;
 }
 
 function initPortList(ports) {
-    /*
-    var availablePorts = ports.filter(function (port) {
-        return !port.match(/[Bb]luetooth/) &&
-            (port.match(/\/dev\/tty/) || port.match(/\/dev\/tty/));
-    });
-    */
     var availablePorts = ports;
-
     var portList = document.getElementById('port_list');
     availablePorts.forEach(function (port) {
         var portOption = document.createElement('option');
-        portOption.value = portOption.innerText = port;
+        portOption.value = portOption.innerText = port.path;
         portList.appendChild(portOption);
     });
 
     portList.onchange = function () {
-        /*
         if (connectionId != -1) {
-            chrome.serial.close(connectionId, openSelectedPort);
+            chrome.serial.disconnect(connectionId, openSelectedPort);
             return;
         }
         openSelectedPort();
-        */
     };
 }
 
 function openSelectedPort() {
-    var portPicker = document.getElementById('port-picker');
-    var selectedPort = portPicker.options[portPicker.selectedIndex].value;
-    chrome.serial.open(selectedPort, onOpen);
+    var portList = document.getElementById('port_list');
+    var selectedPort = portList.options[portList.selectedIndex].value;
+    chrome.serial.connect(selectedPort, null, onOpen);
 }
 
-function sendData(buffer) {
-    chrome.serial.write(connectionId, buffer, function () {
-        ;
+function sendData(str) {
+    chrome.serial.send(connectionId, convertStringToArrayBuffer(str), function () {
     });
-};
+}
 
 function onReceived(readInfo) {
-    var uint8View = new Uint8Array(readInfo.data);
-    // Keep on reading.
-    chrome.serial.read(connectionId, 1, onReceived);
+    console.log(readInfo.connectionId);
+}
+
+// utils
+function convertStringToArrayBuffer(str) {
+    var buf = new ArrayBuffer(str.length);
+    var bufView = new Uint8Array(buf);
+    for (var i = 0; i < str.length; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
 };
