@@ -3,6 +3,9 @@
  * 2017-02-06
  */
 
+var contentWindow = null;
+var connectionId = -1;
+
 chrome.app.runtime.onLaunched.addListener(function () {
 
     if (http.Server && http.WebSocketServer) {
@@ -12,17 +15,6 @@ chrome.app.runtime.onLaunched.addListener(function () {
         server.listen(8301);
 
         console.log("server listening on port 8301");
-
-        /*
-        server.addEventListener('request', function(req) {
-            var url = req.headers.url;
-            if (url == '/')
-                url = './index.html';
-            // serve the pages of this chrome application
-            req.serveUrl(url);
-            return true;
-        });
-        */
 
         // a list of connected websockets
         var connectedSockets = [];
@@ -41,7 +33,10 @@ chrome.app.runtime.onLaunched.addListener(function () {
                     height: 320
                 }},
                 function(createdWindow) {
-                    chrome.runtime.sendMessage({'method': 'socket_connected'});
+                    contentWindow = createdWindow.contentWindow;
+                    contentWindow.addEventListener('load', function(e) {
+                        contentWindow.onLoad();
+                    });
                 });
 
             socket.addEventListener('message', function(e) {
@@ -63,3 +58,40 @@ chrome.app.runtime.onLaunched.addListener(function () {
         });
     }
 });
+
+// serial port operations
+function openSerialPort(port) {
+    console.log("open serial port " + port);
+
+    if (connectionId != -1) {
+        chrome.serial.disconnect(connectionId, openSerialPort);
+        return;
+    }
+
+    chrome.serial.connect(port, null, onSerialPortOpened);
+}
+
+function closeSerialPort() {
+    chrome.serial.disconnect(connectionId, onSerialPortClosed);
+}
+
+function sendData(str) {
+    chrome.serial.send(connectionId, convertStringToArrayBuffer(str), function () {
+    });
+}
+
+
+// serial port event handler
+function onSerialPortOpened(openInfo) {
+    connectionId = openInfo.connectionId;
+    if (connectionId == -1) {
+        setStatus('Could not open');
+        return;
+    }
+    contentWindow.onSerialPortOpened(openInfo);
+}
+
+function onSerialPortClosed() {
+    connectionId = -1;
+    contentWindow.onSerialPortClosed();
+}

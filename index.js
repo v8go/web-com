@@ -3,85 +3,82 @@
  * 2017-02-06
  */
 
-var connectionId = -1;
 var readBuffer = "";
+var background = null;
 
 function $(id) {
     return document.getElementById(id);
 }
 
-function log(text) {
-    console.log(text + '\r');
-}
-
-onload = function () {
-    chrome.runtime.onMessage.addListener(onRuntimeMessage);
-};
-
-function onOpen(openInfo) {
-    connectionId = openInfo.connectionId;
-    console.log("connectionId: " + connectionId);
-    if (connectionId == -1) {
-        setStatus('Could not open');
-        return;
-    }
-    setStatus('Connected');
-}
-
-function setStatus(status) {
-    document.getElementById('status').innerText = status;
-}
-
+// serial port operations
 function initPortList(ports) {
-    var availablePorts = ports;
     var portList = document.getElementById('port_list');
-    availablePorts.forEach(function (port) {
+    ports.forEach(function (port) {
         var portOption = document.createElement('option');
         portOption.value = portOption.innerText = port.path;
         portList.appendChild(portOption);
     });
 
     portList.onchange = function () {
-        if (connectionId != -1) {
-            chrome.serial.disconnect(connectionId, openSelectedPort);
-            return;
-        }
-        openSelectedPort();
+
     };
 }
 
-function openSelectedPort() {
+function openSerialPort() {
     var portList = document.getElementById('port_list');
     var selectedPort = portList.options[portList.selectedIndex].value;
-    chrome.serial.connect(selectedPort, null, onOpen);
+
+    // send message to background task to open serial port
+    background.openSerialPort(selectedPort);
 }
 
-function sendData(str) {
-    chrome.serial.send(connectionId, convertStringToArrayBuffer(str), function () {
-    });
+function closeSerialPort() {
+    background.closeSerialPort();
+}
+
+function setStatus(status) {
+    document.getElementById('status').innerText = status;
+}
+
+// serial port event handlers
+function onSerialPortOpened(openInfo) {
+    setStatus('Opened');
+    $("connect_button").innerHTML = "Close";
+}
+
+function onSerialPortClosed() {
+    setStatus('Closed');
+    $("connect_button").innerHTML = "Open";
 }
 
 function onSerialReceived(readInfo) {
     console.log(readInfo.connectionId);
 }
 
-function onRuntimeMessage(message, sender, sendResponse) {
-    console.log("onRuntimeMessage : " + message);
-    if(message.method == 'socket_connected') {
-        onSocketConnected();
-    }
-}
+// local event handlers
+function onLoad() {
+    chrome.runtime.getBackgroundPage(function (backgroundPage) {
+        background = backgroundPage;
+    });
 
-function onSocketConnected() {
     // scan for serial ports
     chrome.serial.getDevices(function (devices) {
         initPortList(devices);
-        openSelectedPort();
     });
 
-    // register serial port data receive callback
-    chrome.serial.onReceive.addListener(onSerialReceived);
+    $("connect_button").addEventListener("click", function() {
+        if (-1 == background.connectionId) {
+            openSerialPort();
+        } else {
+            closeSerialPort();
+        }
+    });
 }
+
+function onRuntimeMessage(message, sender, sendResponse) {
+    console.log("onRuntimeMessage : " + message);
+}
+
 
 function onSocketReceived(data) {
     console.log("data received from socket ： " + data);
