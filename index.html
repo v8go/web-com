@@ -9,21 +9,80 @@
     <meta name="screen-orientation" content="portrait">
     <meta name="description" content="chrome com extension">
     <meta name="author" content="strawmanbobi">
-    <meta http-equiv="Content-Security-Policy"
-          content="default-src *; style-src 'self' http://* 'unsafe-inline'; script-src 'self' http://* 'unsafe-inline' 'unsafe-eval'" />
     <title>Chrome COM</title>
 
     <link rel="stylesheet" href="./css/styles.css">
 
-    <script src="./js/index.js"></script>
+    <script src="sha1.js"></script>
+    <script src="http.js"></script>
+    <script src="index.js"></script>
 </head>
 <body>
 <div>
     <div>
         <span style="margin-top: 5px;">Port</span>
-        <select id="port_list" style="width: 100%; height: 25px; margin-top: 5px;">
+        <select id="port_list" class="serialcontrol dropdown">
         </select>
+
+        <span style="margin-top: 5px;">Baud Rate</span>
+        <select id="baud_rate" class="serialcontrol dropdown">
+            <option value="110">110</option>
+            <option value="300">300</option>
+            <option value="1200">1200</option>
+            <option value="2400">2400</option>
+            <option value="4800">4800</option>
+            <option value="9600">9600</option>
+            <option value="14400">14400</option>
+            <option value="19200">19200</option>
+            <option value="38400">38400</option>
+            <option value="57600">57600</option>
+            <option value="115200" selected>115200</option>
+        </select>
+
+        <div class="row">
+            <div class="col">
+                <div style="margin-right: 2px;">
+                    <span style="margin-top: 5px;">Data bits</span>
+                    <select id="databits" class="serialcontrol dropdown">
+                        <option value="seven">7</option>
+                        <option value="eight" selected>8</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div style="margin-left: 2px;">
+                    <span style="margin-top: 5px;">Parity</span>
+                    <select id="parity" class="serialcontrol dropdown">
+                        <option value="no" selected>no</option>
+                        <option value="odd">odd</option>
+                        <option value="even">even</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div style="margin-right: 2px;">
+                    <span style="margin-top: 5px;">Stop bits</span>
+                    <select id="stopbits" class="serialcontrol dropdown">
+                        <option value="one" selected>1</option>
+                        <option value="two">2</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div style="margin-left: 2px;">
+                    <span style="margin-top: 5px;">Flow control</span>
+                    <select id="flow_control" class="serialcontrol dropdown">
+                        <option value="false" selected>false</option>
+                        <option value="true">true</option>
+                    </select>
+                </div>
+            </div>
+        </div>
     </div>
+    <br>
     <div id="status" style="margin-top: 5px;"></div>
     <button id="send_button">sendData</button>
 </div>

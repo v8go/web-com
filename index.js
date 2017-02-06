@@ -1,20 +1,21 @@
 /**
  * Created by strawmanbobi
- * 2017-02-03
+ * 2017-02-06
  */
 
 var connectionId = -1;
 var readBuffer = "";
 
+function $(id) {
+    return document.getElementById(id);
+}
+
+function log(text) {
+    console.log(text + '\r');
+}
+
 onload = function () {
-    document.getElementById("send_button").addEventListener("click", function() {
-        sendData("abcd");
-    });
-    chrome.serial.getDevices(function (devices) {
-        initPortList(devices);
-        openSelectedPort();
-    });
-    chrome.serial.onReceive.addListener(onReceived);
+    chrome.runtime.onMessage.addListener(onRuntimeMessage);
 };
 
 function onOpen(openInfo) {
@@ -60,8 +61,30 @@ function sendData(str) {
     });
 }
 
-function onReceived(readInfo) {
+function onSerialReceived(readInfo) {
     console.log(readInfo.connectionId);
+}
+
+function onRuntimeMessage(message, sender, sendResponse) {
+    console.log("onRuntimeMessage : " + message);
+    if(message.method == 'socket_connected') {
+        onSocketConnected();
+    }
+}
+
+function onSocketConnected() {
+    // scan for serial ports
+    chrome.serial.getDevices(function (devices) {
+        initPortList(devices);
+        openSelectedPort();
+    });
+
+    // register serial port data receive callback
+    chrome.serial.onReceive.addListener(onSerialReceived);
+}
+
+function onSocketReceived(data) {
+    console.log("data received from socket ： " + data);
 }
 
 // utils
@@ -72,4 +95,4 @@ function convertStringToArrayBuffer(str) {
         bufView[i] = str.charCodeAt(i);
     }
     return buf;
-};
+}

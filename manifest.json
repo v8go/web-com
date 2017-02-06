@@ -1,13 +1,23 @@
 {
-  "name": "Chrome COM",
+  "name": "ChroCOM",
   "version": "0.0.1",
   "manifest_version": 2,
   "minimum_chrome_version": "23",
   "description": "Serial port extension for Google Chrome",
 
+  "sockets": {
+    "tcp": {
+      "connect": "*"
+    },
+
+    "tcpServer": {
+      "listen": "*"
+    }
+  },
+
   "app": {
     "background": {
-      "scripts": [ "com.js" ]
+      "scripts": [ "http.js", "sha1.js", "background.js" ]
     }
   },
 
