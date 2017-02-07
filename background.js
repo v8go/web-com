@@ -107,7 +107,7 @@ function onSerialPortReceived(readInfo) {
     if (-1 != readInfo.connectionId && readInfo.connectionId == connectionId) {
         sendDataToSocket(readInfo.data);
     } else {
-        console.log("receive error : " + readInfo.connectionId);
+        console.log('receive error : ' + readInfo.connectionId);
     }
 }
 
@@ -120,10 +120,10 @@ function sendDataToSocket(data) {
 function onSocketData(data) {
     if (data.constructor === ArrayBuffer) {
         sendToSerialPort(data);
-    } else if ("string" == typeof data) {
+    } else if ('string' == typeof data) {
         sendToSerialPort(str2ab(data));
     } else {
-        alert("type error : " + typeof data);
+        alert('type error : ' + typeof data);
     }
 }
 
