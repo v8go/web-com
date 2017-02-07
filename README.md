@@ -1,8 +1,6 @@
-# Chrome COM
+# Web COM
 
-This Chrome extension provides serial port connection ability for Chrome.
-
-Any javascript could invoke serial port discovery panel, get connected to it and read/write data.
+This Chrome extension provides serial port access ability for your website.
 
 ## Installation
 
