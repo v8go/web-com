@@ -24,20 +24,35 @@
         <select id="port_list" class="serialcontrol dropdown">
         </select>
 
-        <span style="margin-top: 5px;">Baud Rate</span>
-        <select id="baud_rate" class="serialcontrol dropdown">
-            <option value="110">110</option>
-            <option value="300">300</option>
-            <option value="1200">1200</option>
-            <option value="2400">2400</option>
-            <option value="4800">4800</option>
-            <option value="9600">9600</option>
-            <option value="14400">14400</option>
-            <option value="19200">19200</option>
-            <option value="38400">38400</option>
-            <option value="57600">57600</option>
-            <option value="115200" selected>115200</option>
-        </select>
+        <div class="row">
+            <div class="col">
+                <div style="margin-right: 2px;">
+                    <span style="margin-top: 5px;">Baud rate</span>
+                    <select id="baud_rate" class="serialcontrol dropdown">
+                        <option value="110">110</option>
+                        <option value="300">300</option>
+                        <option value="1200">1200</option>
+                        <option value="2400">2400</option>
+                        <option value="4800">4800</option>
+                        <option value="9600">9600</option>
+                        <option value="14400">14400</option>
+                        <option value="19200">19200</option>
+                        <option value="38400">38400</option>
+                        <option value="57600">57600</option>
+                        <option value="115200" selected>115200</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <div style="margin-left: 2px;">
+                    <span style="margin-top: 5px;">Persist</span>
+                    <select id="persist" class="serialcontrol dropdown">
+                        <option value="false" selected>No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
         <div class="row">
             <div class="col">
@@ -53,9 +68,9 @@
                 <div style="margin-left: 2px;">
                     <span style="margin-top: 5px;">Parity</span>
                     <select id="parity" class="serialcontrol dropdown">
-                        <option value="no" selected>no</option>
-                        <option value="odd">odd</option>
-                        <option value="even">even</option>
+                        <option value="no" selected>No</option>
+                        <option value="odd">Odd</option>
+                        <option value="even">Even</option>
                     </select>
                 </div>
             </div>
@@ -75,18 +90,28 @@
                 <div style="margin-left: 2px;">
                     <span style="margin-top: 5px;">Flow control</span>
                     <select id="flow_control" class="serialcontrol dropdown">
-                        <option value="false" selected>false</option>
-                        <option value="true">true</option>
+                        <option value="false" selected>No</option>
+                        <option value="true">Yes</option>
                     </select>
                 </div>
             </div>
         </div>
 
-        <button id="connect_button" style="width: 100px;">Open</button>
+        <div class="row">
+            <div class="col">
+                <div style="margin-right: 2px;">
+                    <button id="connect_button" class="serialcontrol" style="width: 100%; ">Open</button>
+                </div>
+            </div>
+            <div class="col">
+                <div style="margin-right: 2px;">
+                    <div id="status" style="text-align: center;" class="serialcontrol">Closed</div>
+                </div>
+            </div>
+        </div>
     </div>
     <br>
-    <div id="status" style="margin-top: 5px;"></div>
-    <button id="send_button">sendData</button>
+
 </div>
 
 </body>

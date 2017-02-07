@@ -3,11 +3,16 @@
  * 2017-02-06
  */
 
-var readBuffer = "";
+var readBuffer = '';
 var background = null;
 
 function $(id) {
     return document.getElementById(id);
+}
+
+// message handler
+function sendRequest(request, payload) {
+    chrome.runtime.sendMessage({ request : request, payload : payload });
 }
 
 // serial port operations
@@ -27,13 +32,14 @@ function initPortList(ports) {
 function openSerialPort() {
     var portList = document.getElementById('port_list');
     var selectedPort = portList.options[portList.selectedIndex].value;
+    var portOptions = {
 
-    // send message to background task to open serial port
-    background.openSerialPort(selectedPort);
+    };
+    sendRequest('open_port', { path : selectedPort });
 }
 
 function closeSerialPort() {
-    background.closeSerialPort();
+    sendRequest('close_port', null);
 }
 
 function setStatus(status) {
@@ -43,12 +49,17 @@ function setStatus(status) {
 // serial port event handlers
 function onSerialPortOpened(openInfo) {
     setStatus('Opened');
-    $("connect_button").innerHTML = "Close";
+    $('connect_button').innerHTML = 'Close';
+}
+
+function onSerialPortOpenFailed(openInfo) {
+    console.log(openInfo);
+    setStatus('Open failed');
 }
 
 function onSerialPortClosed() {
     setStatus('Closed');
-    $("connect_button").innerHTML = "Open";
+    $('connect_button').innerHTML = 'Open';
 }
 
 function onSerialReceived(readInfo) {
@@ -60,13 +71,26 @@ function onLoad() {
     chrome.runtime.getBackgroundPage(function (backgroundPage) {
         background = backgroundPage;
     });
+    
+    chrome.runtime.onMessage.addListener(
+        function(message, sender, sendResponse) {
+            if (message.response == 'port_opened') {
+                onSerialPortOpened(message.payload);
+            }
+            else if (message.response == 'port_open_failed') {
+                onSerialPortOpenFailed(message.payload);
+            }
+            else if (message.response == 'port_closed') {
+                onSerialPortClosed();
+            }
+        });
 
     // scan for serial ports
     chrome.serial.getDevices(function (devices) {
         initPortList(devices);
     });
 
-    $("connect_button").addEventListener("click", function() {
+    $('connect_button').addEventListener('click', function() {
         if (-1 == background.connectionId) {
             openSerialPort();
         } else {
@@ -76,12 +100,12 @@ function onLoad() {
 }
 
 function onRuntimeMessage(message, sender, sendResponse) {
-    console.log("onRuntimeMessage : " + message);
+    console.log('onRuntimeMessage : ' + message);
 }
 
 
 function onSocketReceived(data) {
-    console.log("data received from socket ： " + data);
+    console.log('data received from socket ： ' + data);
 }
 
 // utils

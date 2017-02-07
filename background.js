@@ -3,7 +3,6 @@
  * 2017-02-06
  */
 
-var contentWindow = null;
 var connectionId = -1;
 
 chrome.app.runtime.onLaunched.addListener(function () {
@@ -13,14 +12,12 @@ chrome.app.runtime.onLaunched.addListener(function () {
         var server = new http.Server();
         var wsServer = new http.WebSocketServer(server);
         server.listen(8301);
-
-        console.log("server listening on port 8301");
+        console.log('server listening on port 8301');
 
         // a list of connected websockets
         var connectedSockets = [];
 
         wsServer.addEventListener('request', function(req) {
-            console.log('client connected');
             var socket = req.accept();
             connectedSockets.push(socket);
 
@@ -33,9 +30,8 @@ chrome.app.runtime.onLaunched.addListener(function () {
                     height: 320
                 }},
                 function(createdWindow) {
-                    contentWindow = createdWindow.contentWindow;
-                    contentWindow.addEventListener('load', function(e) {
-                        contentWindow.onLoad();
+                    createdWindow.contentWindow.addEventListener('load', function(e) {
+                        createdWindow.contentWindow.onLoad();
                     });
                 });
 
@@ -59,10 +55,23 @@ chrome.app.runtime.onLaunched.addListener(function () {
     }
 });
 
+// app window <-> background message handler
+function sendResponse(response, payload) {
+    chrome.runtime.sendMessage({ response : response, payload : payload });
+}
+
+chrome.runtime.onMessage.addListener(
+    function(message, sender, sendResponse) {
+        if (message.request == 'open_port') {
+            openSerialPort(message.payload.path);
+        }
+        else if (message.request == 'close_port') {
+            closeSerialPort();
+        }
+    });
+
 // serial port operations
 function openSerialPort(port) {
-    console.log("open serial port " + port);
-
     if (connectionId != -1) {
         chrome.serial.disconnect(connectionId, openSerialPort);
         return;
@@ -80,18 +89,17 @@ function sendData(str) {
     });
 }
 
-
 // serial port event handler
 function onSerialPortOpened(openInfo) {
     connectionId = openInfo.connectionId;
     if (connectionId == -1) {
-        setStatus('Could not open');
+        sendResponse('port_open_failed', openInfo);
         return;
     }
-    contentWindow.onSerialPortOpened(openInfo);
+    sendResponse('port_opened', openInfo);
 }
 
 function onSerialPortClosed() {
     connectionId = -1;
-    contentWindow.onSerialPortClosed();
+    sendResponse('port_closed');
 }
