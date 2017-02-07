@@ -36,7 +36,6 @@ chrome.app.runtime.onLaunched.addListener(function () {
                 });
 
             socket.addEventListener('message', function(e) {
-                console.log(e.data);
                 onSocketData(e.data);
             });
 
@@ -84,9 +83,8 @@ function closeSerialPort() {
     chrome.serial.disconnect(connectionId, onSerialPortClosed);
 }
 
-function sendData(str) {
-    chrome.serial.send(connectionId, convertStringToArrayBuffer(str), function () {
-    });
+function sendToSerialPort(buffer) {
+    chrome.serial.send(connectionId, buffer, null);
 }
 
 // serial port event handler
@@ -96,10 +94,45 @@ function onSerialPortOpened(openInfo) {
         sendResponse('port_open_failed', openInfo);
         return;
     }
+    chrome.serial.onReceive.addListener(onSerialPortReceived);
     sendResponse('port_opened', openInfo);
 }
 
 function onSerialPortClosed() {
     connectionId = -1;
     sendResponse('port_closed');
+}
+
+function onSerialPortReceived(readInfo) {
+    if (-1 != readInfo.connectionId && readInfo.connectionId == connectionId) {
+        sendDataToSocket(readInfo.data);
+    } else {
+        console.log("receive error : " + readInfo.connectionId);
+    }
+}
+
+// socket operation
+function sendDataToSocket(data) {
+    ws.send(data);
+}
+
+// socket event handle
+function onSocketData(data) {
+    if (data.constructor === ArrayBuffer) {
+        sendToSerialPort(data);
+    } else if ("string" == typeof data) {
+        sendToSerialPort(str2ab(data));
+    } else {
+        alert("type error : " + typeof data);
+    }
+}
+
+// utils
+function str2ab(str) {
+    var buf = new ArrayBuffer(str.length * 2);
+    var bufView = new Uint16Array(buf);
+    for (var i=0, strLen=str.length; i<strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
 }

@@ -62,10 +62,6 @@ function onSerialPortClosed() {
     $('connect_button').innerHTML = 'Open';
 }
 
-function onSerialReceived(readInfo) {
-    console.log(readInfo.connectionId);
-}
-
 // local event handlers
 function onLoad() {
     chrome.runtime.getBackgroundPage(function (backgroundPage) {
