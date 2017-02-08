@@ -4,25 +4,24 @@
  */
 
 var connectionId = -1;
+var socket;
 
+// local web socket server registration
 chrome.app.runtime.onLaunched.addListener(function () {
 
     if (http.Server && http.WebSocketServer) {
-        // listen for HTTP connections.
         var server = new http.Server();
         var wsServer = new http.WebSocketServer(server);
         server.listen(8301);
         console.log('server listening on port 8301');
 
-        // a list of connected websockets
         var connectedSockets = [];
 
         wsServer.addEventListener('request', function(req) {
-            var socket = req.accept();
+            socket = req.accept();
             connectedSockets.push(socket);
 
-            // display serial port connection window on websocket connected
-            chrome.app.window.create('index.html', {
+            chrome.app.window.create('connection.html', {
                 bounds: {
                     top: 20,
                     left: 20,
@@ -39,7 +38,6 @@ chrome.app.runtime.onLaunched.addListener(function () {
                 onSocketData(e.data);
             });
 
-            // when a socket is closed, remove it from the list of connected sockets
             socket.addEventListener('close', function() {
                 console.log('client disconnected');
                 for (var i = 0; i < connectedSockets.length; i++) {
@@ -84,7 +82,13 @@ function closeSerialPort() {
 }
 
 function sendToSerialPort(buffer) {
-    chrome.serial.send(connectionId, buffer, null);
+    if (-1 != connectionId) {
+        chrome.serial.send(connectionId, buffer, function(sendInfo) {
+
+        });
+    } else {
+        console.log('serial port is closed');
+    }
 }
 
 // serial port event handler
@@ -113,8 +117,9 @@ function onSerialPortReceived(readInfo) {
 
 // socket operation
 function sendDataToSocket(data) {
-    ws.send(data);
+    socket.send(data);
 }
+
 
 // socket event handle
 function onSocketData(data) {

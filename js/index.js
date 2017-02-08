@@ -3,14 +3,13 @@
  * 2017-02-06
  */
 
-var readBuffer = '';
 var background = null;
 
 function $(id) {
     return document.getElementById(id);
 }
 
-// message handler
+// app window <-> background message operations
 function sendRequest(request, payload) {
     chrome.runtime.sendMessage({ request : request, payload : payload });
 }
@@ -49,7 +48,7 @@ function setStatus(status) {
 // serial port event handlers
 function onSerialPortOpened(openInfo) {
     setStatus('Opened');
-    $('connect_button').innerHTML = 'Close';
+    $('button_connect').innerHTML = 'Close';
 }
 
 function onSerialPortOpenFailed(openInfo) {
@@ -59,7 +58,7 @@ function onSerialPortOpenFailed(openInfo) {
 
 function onSerialPortClosed() {
     setStatus('Closed');
-    $('connect_button').innerHTML = 'Open';
+    $('button_connect').innerHTML = 'Open';
 }
 
 // local event handlers
@@ -86,7 +85,7 @@ function onLoad() {
         initPortList(devices);
     });
 
-    $('connect_button').addEventListener('click', function() {
+    $('button_connect').addEventListener('click', function() {
         var connectionOptions = {
             persistent : "true" == $('persist').value,
             bitrate : parseInt($('baud_rate').value),
