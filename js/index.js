@@ -29,13 +29,13 @@ function initPortList(ports) {
     };
 }
 
-function openSerialPort() {
+function openSerialPort(connectionOptions) {
     var portList = document.getElementById('port_list');
     var selectedPort = portList.options[portList.selectedIndex].value;
     var portOptions = {
 
     };
-    sendRequest('open_port', { path : selectedPort });
+    sendRequest('open_port', { path : selectedPort, options : connectionOptions });
 }
 
 function closeSerialPort() {
@@ -87,8 +87,16 @@ function onLoad() {
     });
 
     $('connect_button').addEventListener('click', function() {
+        var connectionOptions = {
+            persistent : "true" == $('persist').value,
+            bitrate : parseInt($('baud_rate').value),
+            dataBits :  $('databits').value,
+            parityBit :  $('parity').value,
+            stopBits :  $('stopbits').value,
+            ctsFlowControl :  "true" == $('flow_control').value
+        };
         if (-1 == background.connectionId) {
-            openSerialPort();
+            openSerialPort(connectionOptions);
         } else {
             closeSerialPort();
         }

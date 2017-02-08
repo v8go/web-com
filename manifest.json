@@ -17,7 +17,7 @@
 
   "app": {
     "background": {
-      "scripts": [ "http.js", "sha1.js", "background.js" ]
+      "scripts": [ "js/http.js", "js/sha1.js", "background.js" ]
     }
   },
 

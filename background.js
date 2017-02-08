@@ -62,7 +62,7 @@ function sendResponse(response, payload) {
 chrome.runtime.onMessage.addListener(
     function(message, sender, sendResponse) {
         if (message.request == 'open_port') {
-            openSerialPort(message.payload.path);
+            openSerialPort(message.payload.path, message.payload.options);
         }
         else if (message.request == 'close_port') {
             closeSerialPort();
@@ -70,13 +70,13 @@ chrome.runtime.onMessage.addListener(
     });
 
 // serial port operations
-function openSerialPort(port) {
+function openSerialPort(port, options) {
     if (connectionId != -1) {
         chrome.serial.disconnect(connectionId, openSerialPort);
         return;
     }
 
-    chrome.serial.connect(port, null, onSerialPortOpened);
+    chrome.serial.connect(port, options, onSerialPortOpened);
 }
 
 function closeSerialPort() {
