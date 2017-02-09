@@ -17,7 +17,7 @@ window.onload = function () {
     $('button_send').addEventListener('click', function() {
         sendData();
     });
-}
+};
 
 function startExample() {
     var address = "ws://localhost:8301/";
@@ -39,3 +39,8 @@ function onDataReceived(e) {
     console.log(e.data);
 }
 
+function toHexString(byteArray) {
+    return byteArray.map(function(byte) {
+        return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+    }).join('')
+}
