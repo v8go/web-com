@@ -1,75 +1,95 @@
 /**
- * Created by strawmanbobi
- * 2017-02-06
- */
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Copyright 2017 Strawmanbobi
+ **/
 
 var connectionId = -1;
 var socket;
+var socketConnected = false;
+var serialPortOpened = false;
+var windowOpened = false;
 
-// local web socket server registration
 chrome.app.runtime.onLaunched.addListener(function () {
+    initSocket();
+    chrome.runtime.onMessage.addListener(onLocalEventReceived);
+    chrome.serial.onReceive.addListener(onSerialPortReceived);
+});
 
+function initSocket() {
     if (http.Server && http.WebSocketServer) {
         var server = new http.Server();
         var wsServer = new http.WebSocketServer(server);
         server.listen(8301);
         console.log('server listening on port 8301');
 
-        var connectedSockets = [];
-
         wsServer.addEventListener('request', function(req) {
-            socket = req.accept();
-            connectedSockets.push(socket);
+            if (!socketConnected) {
+                socket = req.accept();
+                socketConnected = true;
+                console.log('client connected');
 
-            chrome.app.window.create('connection.html', {
-                bounds: {
-                    top: 20,
-                    left: 20,
-                    width: 400,
-                    height: 320
-                }},
-                function(createdWindow) {
-                    createdWindow.contentWindow.addEventListener('load', function(e) {
-                        createdWindow.contentWindow.onLoad();
-                    });
+                if (!windowOpened) {
+                    chrome.app.window.create('connection.html', {
+                            bounds: {
+                                top: 20,
+                                left: 20,
+                                width: 400,
+                                height: 320
+                            },
+                            singleton: true
+                        },
+                        function(createdWindow) {
+                            createdWindow.contentWindow.addEventListener('load', function(e) {
+                                createdWindow.contentWindow.onLoad();
+                            });
+                        });
+                    windowOpened = true;
+                }
+
+                socket.addEventListener('message', function(e) {
+                    onSocketData(e.data);
                 });
 
-            socket.addEventListener('message', function(e) {
-                onSocketData(e.data);
-            });
-
-            socket.addEventListener('close', function() {
-                console.log('client disconnected');
-                for (var i = 0; i < connectedSockets.length; i++) {
-                    if (connectedSockets[i] == socket) {
-                        connectedSockets.splice(i, 1);
-                        break;
-                    }
-                }
-            });
+                socket.addEventListener('close', function() {
+                    console.log('client disconnected');
+                    socketConnected = false;
+                });
+            } else {
+                console.log('server socket is already connected');
+            }
             return true;
         });
+    } else {
+        console.log('web socket is not supported by this browser');
     }
-});
+}
 
-// app window <-> background message handler
+function onLocalEventReceived(message, sender, sendResponse) {
+    if (message.request == 'open_port') {
+        openSerialPort(message.payload.path, message.payload.options);
+    }
+    else if (message.request == 'close_port') {
+        closeSerialPort();
+    }
+}
+
 function sendResponse(response, payload) {
     chrome.runtime.sendMessage({ response : response, payload : payload });
 }
 
-chrome.runtime.onMessage.addListener(
-    function(message, sender, sendResponse) {
-        if (message.request == 'open_port') {
-            openSerialPort(message.payload.path, message.payload.options);
-        }
-        else if (message.request == 'close_port') {
-            closeSerialPort();
-        }
-    });
-
-// serial port operations
 function openSerialPort(port, options) {
-    if (connectionId != -1) {
+    if (connectionId != -1 || serialPortOpened) {
         chrome.serial.disconnect(connectionId, openSerialPort);
         return;
     }
@@ -82,6 +102,7 @@ function closeSerialPort() {
 }
 
 function sendToSerialPort(buffer) {
+    console.log('send data to serial');
     if (-1 != connectionId) {
         chrome.serial.send(connectionId, buffer, function(sendInfo) {
 
@@ -91,19 +112,19 @@ function sendToSerialPort(buffer) {
     }
 }
 
-// serial port event handler
 function onSerialPortOpened(openInfo) {
     connectionId = openInfo.connectionId;
     if (connectionId == -1) {
         sendResponse('port_open_failed', openInfo);
         return;
     }
-    chrome.serial.onReceive.addListener(onSerialPortReceived);
     sendResponse('port_opened', openInfo);
+    serialPortOpened = true;
 }
 
 function onSerialPortClosed() {
     connectionId = -1;
+    serialPortOpened = false;
     sendResponse('port_closed');
 }
 
@@ -115,14 +136,13 @@ function onSerialPortReceived(readInfo) {
     }
 }
 
-// socket operation
 function sendDataToSocket(data) {
     socket.send(data);
 }
 
 
-// socket event handle
 function onSocketData(data) {
+    console.log('on socket data');
     if (data.constructor === ArrayBuffer) {
         sendToSerialPort(data);
     } else if ('string' == typeof data) {
