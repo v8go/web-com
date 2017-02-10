@@ -11,19 +11,19 @@ Go to Chrome's Tools -> Extensions then click "Load unpacked extension...". Then
 There an example showing how to use this chrome packaged app in your website.
 
 1. Install and start Web COM packaged app, it will listen on port 8301 (or you could change the listen port)
-
 2. Create a websocket connecting to localhost:8301 with type 'arraybuffer' and add your event callback handlers
-```javascript
-ws = new WebSocket('ws://localhost:8301/');
-ws.binaryType = 'arraybuffer';
+    ```javascript
+    ws = new WebSocket('ws://localhost:8301/');
+    ws.binaryType = 'arraybuffer';
 
-ws.addEventListener('open', function() {
-    ...
-});
-ws.addEventListener('close', function() {
-    ...
-});
-ws.addEventListener('message', function(data){
-    ...
-});
-```
+    ws.addEventListener('open', function() {
+        ...
+    });
+    ws.addEventListener('close', function() {
+        ...
+    });
+    ws.addEventListener('message', function(data){
+        ...
+    });
+    ```
+3. Select serial port and connection options and connect, then use ```ws.send()``` to send string or array buffer.
