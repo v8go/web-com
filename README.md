@@ -1,4 +1,5 @@
 # Web COM
+Revision 0.0.2
 
 This Chrome app provides serial port access ability for your website.
 
@@ -26,4 +27,8 @@ There an example showing how to use this chrome packaged app in your website.
         ...
     });
     ```
-3. Select serial port and connection options and connect, then use ```ws.send()``` to send string or array buffer.
+3. Select path and connection options, open the serial port, and then use ```ws.send()``` to send string or array buffer.
+![alt tag](https://github.com/strawmanbobi/web-com/blob/master/example/screen_cap.png)
+
+You can also find the example here:
+https://jsfiddle.net/strawmanbobi/nt4x3c23/
