@@ -1,12 +1,12 @@
 /**
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -15,6 +15,7 @@
  **/
 
 var connectionId = -1;
+var serialPath = '';
 var socket;
 var socketConnected = false;
 var serialPortOpened = false;
@@ -39,24 +40,6 @@ function initSocket() {
                 socketConnected = true;
                 console.log('client connected');
 
-                if (!windowOpened) {
-                    chrome.app.window.create('connection.html', {
-                            bounds: {
-                                top: 20,
-                                left: 20,
-                                width: 400,
-                                height: 320
-                            },
-                            singleton: true
-                        },
-                        function(createdWindow) {
-                            createdWindow.contentWindow.addEventListener('load', function(e) {
-                                createdWindow.contentWindow.onLoad();
-                            });
-                        });
-                    windowOpened = true;
-                }
-
                 socket.addEventListener('message', function(e) {
                     onSocketData(e.data);
                 });
@@ -64,9 +47,30 @@ function initSocket() {
                 socket.addEventListener('close', function() {
                     console.log('client disconnected');
                     socketConnected = false;
+                    closeSerialPort();
                 });
             } else {
                 console.log('server socket is already connected');
+            }
+            if (!windowOpened) {
+                chrome.app.window.create('connection.html', {
+                        bounds: {
+                            top: 20,
+                            left: 20,
+                            width: 400,
+                            height: 320
+                        },
+                        singleton: true
+                    },
+                    function(createdWindow) {
+                        createdWindow.contentWindow.addEventListener('load', function(e) {
+                            createdWindow.contentWindow.onLoad();
+                        });
+                        createdWindow.onClosed.addListener(function() {
+                            windowOpened = false;
+                        })
+                    });
+                windowOpened = true;
             }
             return true;
         });
@@ -78,8 +82,7 @@ function initSocket() {
 function onLocalEventReceived(message, sender, sendResponse) {
     if (message.request == 'open_port') {
         openSerialPort(message.payload.path, message.payload.options);
-    }
-    else if (message.request == 'close_port') {
+    } else if (message.request == 'close_port') {
         closeSerialPort();
     }
 }
@@ -88,13 +91,14 @@ function sendResponse(response, payload) {
     chrome.runtime.sendMessage({ response : response, payload : payload });
 }
 
-function openSerialPort(port, options) {
+function openSerialPort(path, options) {
     if (connectionId != -1 || serialPortOpened) {
         chrome.serial.disconnect(connectionId, openSerialPort);
         return;
     }
 
-    chrome.serial.connect(port, options, onSerialPortOpened);
+    serialPath = path;
+    chrome.serial.connect(path, options, onSerialPortOpened);
 }
 
 function closeSerialPort() {
@@ -102,7 +106,6 @@ function closeSerialPort() {
 }
 
 function sendToSerialPort(buffer) {
-    console.log('send data to serial');
     if (-1 != connectionId) {
         chrome.serial.send(connectionId, buffer, function(sendInfo) {
 
@@ -112,13 +115,13 @@ function sendToSerialPort(buffer) {
     }
 }
 
-function onSerialPortOpened(openInfo) {
-    connectionId = openInfo.connectionId;
+function onSerialPortOpened(connectionInfo) {
+    connectionId = connectionInfo.connectionId;
     if (connectionId == -1) {
-        sendResponse('port_open_failed', openInfo);
+        sendResponse('port_open_failed', connectionInfo);
         return;
     }
-    sendResponse('port_opened', openInfo);
+    sendResponse('port_opened', connectionInfo);
     serialPortOpened = true;
 }
 
@@ -142,7 +145,6 @@ function sendDataToSocket(data) {
 
 
 function onSocketData(data) {
-    console.log('on socket data');
     if (data.constructor === ArrayBuffer) {
         sendToSerialPort(data);
     } else if ('string' == typeof data) {
@@ -152,7 +154,6 @@ function onSocketData(data) {
     }
 }
 
-// utils
 function str2ab(str) {
     var buf = new ArrayBuffer(str.length);
     var bufView = new Uint8Array(buf);

@@ -1,10 +1,9 @@
 {
   "name": "Web COM",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "manifest_version": 2,
   "minimum_chrome_version": "23",
-  "description": "Serial port extension for Google Chrome",
-
+  "description": "An extension provides serial port access ability for your website",
   "sockets": {
     "tcp": {
       "connect": "*"
@@ -14,18 +13,15 @@
       "listen": "*"
     }
   },
-
   "app": {
     "background": {
       "scripts": [ "js/http.js", "js/sha1.js", "background.js" ]
     }
   },
-
   "icons": {
     "16": "assets/icon_16x16.png",
     "128": "assets/icon_128x128.png"
   },
-
   "permissions": [
     "serial"
   ]
