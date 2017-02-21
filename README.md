@@ -5,7 +5,11 @@ This Chrome app provides serial port access ability for your website.
 
 ## Installation
 
-Go to Chrome's Tools -> Extensions then click "Load unpacked extension...". Then click on Launch to get it working.
+Method 1: Go to Chrome's Tools -> Extensions then click "Load unpacked extension...". Then click on Launch to get it working.
+
+Method 2: Or, You can install it by dragging and dropping the web_com.crx file in the root directory to chrome://extensions/ page.
+
+Method 3: Visit here for official installation: https://chrome.google.com/webstore/detail/web-com/mbndnomfbkfijpkbmnohmnnbfbhknfba
 
 ## How to use
 
