@@ -1,6 +1,6 @@
 {
   "name": "Web COM",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "manifest_version": 2,
   "minimum_chrome_version": "23",
   "description": "An extension provides serial port access ability for your website",

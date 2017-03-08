@@ -23,7 +23,10 @@ var windowOpened = false;
 
 chrome.app.runtime.onLaunched.addListener(function () {
     initSocket();
+    chrome.runtime.onMessage.removeListener(onLocalEventReceived);
     chrome.runtime.onMessage.addListener(onLocalEventReceived);
+
+    chrome.serial.onReceive.removeListener(onSerialPortReceived);
     chrome.serial.onReceive.addListener(onSerialPortReceived);
 });
 
