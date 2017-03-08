@@ -7,7 +7,7 @@ This Chrome app provides serial port access ability for your website.
 
 Method 1: Go to Chrome's Tools -> Extensions then click "Load unpacked extension...". Then click on Launch to get it working
 
-Method 2: Or, You can install it by dragging and dropping the web_com.crx file in the root directory to chrome://extensions/
+Method 2: Or, You can install it by dragging and dropping the released crx file in the root directory to chrome://extensions/
 
 Method 3: Visit here for official installation: https://chrome.google.com/webstore/detail/web-com/mbndnomfbkfijpkbmnohmnnbfbhknfba
 
@@ -30,7 +30,7 @@ Method 3: Visit here for official installation: https://chrome.google.com/websto
     });
     ```
 3. Select path and connection options, open the serial port, and then use ```ws.send()``` to send string or array buffer
-![alt tag](https://github.com/strawmanbobi/web-com/blob/master/example/screen_cap.png)
+![alt tag](https://github.com/strawmanbobi/web-com/blob/master/src/example/screen_cap.png)
 
 You can also find the example here:
 https://jsfiddle.net/strawmanbobi/nt4x3c23/
